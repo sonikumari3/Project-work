@@ -1,6 +1,7 @@
 const express = require('express')
 const router = express.Router();
 const authorcontroller = require('../controller/authorcontroller')
+const blogController = require('../controller/blogController')
 
 const app = express()
 
@@ -10,5 +11,6 @@ app.get('/', (req, res) => {
 })
 
 router.post("/author", authorcontroller.createAuthor)
+router.post("/blog", blogController.createBlog)
 
 module.exports = router;
