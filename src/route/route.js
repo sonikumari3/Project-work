@@ -12,5 +12,6 @@ app.get('/', (req, res) => {
 
 router.post("/author", authorcontroller.createAuthor)
 router.post("/blog", blogController.createBlog)
-
+router.get("/getblog",blogController.getblog)
+router.get("/filterblog",blogController.filterblog)
 module.exports = router;
