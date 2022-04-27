@@ -5,9 +5,21 @@ let createBlog = async function(req, res) {
     try{
         let data = req.body
         let auth = data.authorId
+        let title = req.body.title
+        let body = req.body.body
+        let category = req.body.category
         let id = await authorModel.findById(auth)
         if(!id){
             return res.status(400).send({msg: 'Author does not exist'})
+        }
+        if(!title){
+            return res.status(400).send({msg: 'Title is required'})
+        }
+        if(!body){
+            return res.status(400).send({msg: 'Body is required'})
+        }
+        if(!category){
+            return res.status(400).send({msg: 'Category is required'})
         }
         let savedData = await blogModel.create(data)
         res.status(201).send({msg : savedData})
