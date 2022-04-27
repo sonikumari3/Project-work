@@ -4,7 +4,7 @@ const authorSchema = new mongoose.Schema({
     fname: String,
     lname: String,
     title: { type: String, enum: ["Mr", "Mrs", "Miss"] },
-    email: { type: String,unique:false },
+    email: String ,  //doubt 
     password: String
 
 }, { timestamps: true })

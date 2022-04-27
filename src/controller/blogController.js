@@ -16,6 +16,9 @@ let createBlog = async function(req, res) {
         res.status(500).send({msg : err.message})
     }
 }
+
+
+
 let getblog = async function(req,res){
     try{
         
