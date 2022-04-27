@@ -90,6 +90,45 @@ const filterblog = async function (req, res) {
   }
 };
 
+const updatedModel = async function (req, res) {
+  try {
+      const data = req.body
+      let id = req.params.blogId
+      let body = req.body.body
+      let title = req.body.title
+      let published = req.body
+      let {publishedAt,isPublished} = published
+
+  
+      let blog = await blogModel.findOne({ $and: [{ _id: id }, { isDeleted: false }] })
+      if (!blog) {
+          return res.send({ status: false, message: "bloger  doesnt exist" })
+      }
+
+       if(body){
+         await blogModel.findOneAndUpdate({ _id: id },{body: data.body},{ new: true })
+       
+       }
+       if(title){
+        await blogModel.findOneAndUpdate({ _id: id },{title: data.title},{ new: true })
+      
+      }
+      if(published){
+        await blogModel.findOneAndUpdate({ _id: id },published,{ new: true })
+      
+      }
+      //res.send({msg: true,blog })
+
+      let updatedBlog = await blogModel.findOneAndUpdate({ _id: id } ,{$push:{tags:data.tags, subcategory:data.subcategory} },{ new: true })
+      res.send({ msg: true, updatedBlog })
+  }
+  catch (err) {
+      res.status(500).send({ msg: err.message })
+  }
+}
+
+
 module.exports.createBlog = createBlog;
 module.exports.getblog = getblog;
 module.exports.filterblog = filterblog;
+module.exports.updatedModel=updatedModel

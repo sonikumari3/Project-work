@@ -14,4 +14,5 @@ router.post("/author", authorcontroller.createAuthor)
 router.post("/blog", blogController.createBlog)
 router.get("/getblog",blogController.getblog)
 router.get("/filterblog",blogController.filterblog)
+router.put("/updateblog/:blogId", blogController.updatedModel)
 module.exports = router;
