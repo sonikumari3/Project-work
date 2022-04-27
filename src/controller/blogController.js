@@ -28,8 +28,8 @@ const createBlog = async function (req, res) {
     }
     const savedData = await blogModel.create(data);
     res.status(201).send({ status: true, msg: savedData });
-  } catch (err) {
-    res.status(500).send({ status: false, msg: err.message });
+  } catch (error) {
+    res.status(500).send({ status: false, msg: error.message });
   }
 };
 
@@ -43,8 +43,8 @@ const getblog = async function (req, res) {
       return res.status(404).send({ status: false, msg: "NOT found" });
     }
     res.status(200).send({ status: true, msg: blog });
-  } catch (err) {
-    res.status(500).send({ status: false, msg: err.message });
+  } catch (error) {
+    res.status(500).send({ status: false, msg: error.message });
   }
 };
 const filterblog = async function (req, res) {
@@ -85,8 +85,8 @@ const filterblog = async function (req, res) {
       return res.status(404).send({ status: false, msg: "NOT found" });
     }
     res.status(200).send({ status: true, msg: blog });
-  } catch (err) {
-    res.status(500).send({ status: false, msg: err.message });
+  } catch (error) {
+    res.status(500).send({ status: false, msg: error.message });
   }
 };
 
