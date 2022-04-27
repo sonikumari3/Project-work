@@ -8,27 +8,27 @@ const createAuthor = async function (req, res) {
     // const userEmail = await authorModel.findOne({ email: email })
     const password = req.body.password
     if (!fname) {
-        return res.status(400).send({ msg: "first name required" })
+        return res.status(400).send({status:false , msg: "first name required" })
     }
     if (!lname) {
-        return res.status(400).send({ msg: "last name required" })
+        return res.status(400).send({status:false , msg: "last name required" })
     }
     if (!title) {
-        return res.status(400).send({ msg: "title name required" })
+        return res.status(400).send({status:false , msg: "title name required" })
     }
     let validmail =  /^[a-zA-Z0-9.! #$%&'*+/=? ^_`{|}~-]+@[a-zA-Z0-9-]+(?:\. [a-zA-Z0-9-]+)*$/
     if (email!= validmail) {
-        return res.status(400).send({ msg: "email is not valid" })
+        return res.status(400).send({status:false , msg: "email is not valid" })
     }
     // if (userEmail === email) {
     //     return res.status(400).send({ msg: "user already exist" })
     // }
     if (!password) {
-        return res.status(400).send({ msg: "enter password" })
+        return res.status(400).send({status:false , msg: "enter password" })
     }
     const data = req.body
     const author = await authorModel.create(data)
-    res.send({ result: author })
+    res.status(201).send({status:true , msg: author })
 }
 
 
