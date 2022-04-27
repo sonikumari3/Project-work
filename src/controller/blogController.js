@@ -36,7 +36,7 @@ const createBlog = async function (req, res) {
 const getblog = async function (req, res) {
   try {
     const blog = await blogModel.find({
-      $and: [{ isDeconsted: false }, { isPublished: true }],
+      $and: [{ isDeleted: false }, { isPublished: true }],
     });
     console.log(blog);
     if (blog.length === 0) {
@@ -92,38 +92,87 @@ const filterblog = async function (req, res) {
 
 const updatedModel = async function (req, res) {
   try {
-      const data = req.body
-      let id = req.params.blogId
-      let body = req.body.body
-      let title = req.body.title
-      let published = req.body
-      let {publishedAt,isPublished} = published
+    const data = req.body
+    let id = req.params.blogId
+    let body = req.body.body
+    let title = req.body.title
+    let subcategory = req.body.subcategory
+    let published = req.body
+    let { publishedAt, isPublished } = published
 
-  
-      let blog = await blogModel.findOne({ $and: [{ _id: id }, { isDeleted: false }] })
-      if (!blog) {
-          return res.send({ status: false, message: "bloger  doesnt exist" })
-      }
 
-       if(body){
-         await blogModel.findOneAndUpdate({ _id: id },{body: data.body},{ new: true })
-       
-       }
-       if(title){
-        await blogModel.findOneAndUpdate({ _id: id },{title: data.title},{ new: true })
-      
-      }
-      if(published){
-        await blogModel.findOneAndUpdate({ _id: id },published,{ new: true })
-      
-      }
-      //res.send({msg: true,blog })
+    let blog = await blogModel.findOne({ $and: [{ _id: id }, { isDeleted: false }] })
+    if (!blog) {
+      return res.status(404).send({ status: false, message: "bloger  doesnt exist" })
+    }
 
-      let updatedBlog = await blogModel.findOneAndUpdate({ _id: id } ,{$push:{tags:data.tags, subcategory:data.subcategory} },{ new: true })
-      res.send({ msg: true, updatedBlog })
+    if (body) {
+      await blogModel.findOneAndUpdate({ _id: id }, { body: data.body }, { new: true })
+
+    }
+    if (title) {
+      await blogModel.findOneAndUpdate({ _id: id }, { title: data.title }, { new: true })
+
+    }
+    if (subcategory) {
+      await blogModel.findOneAndUpdate({ _id: id }, { $push: { subcategory: data.subcategory } }, { new: true })
+
+    }
+
+    if (published) {
+      await blogModel.findOneAndUpdate({ _id: id }, published, { new: true })
+
+    }
+
+
+
+    //res.send({msg: true,blog })
+
+    let updatedBlog = await blogModel.findOneAndUpdate({ _id: id }, { $push: { tags: data.tags } }, { new: true })
+    res.send({ msg: true, updatedBlog })
+
+
   }
   catch (err) {
-      res.status(500).send({ msg: err.message })
+    res.status(500).send({ status: false, msg: err.message })
+  }
+}
+
+const deleteblog = async function (req, res) {
+  try {
+    let id = req.params.blogId
+
+    let blog = await blogModel.findOne({ $and: [{ _id: id }, { isDeleted: false }] })
+    if (blog) {
+      let deletedblog = await blogModel.findByIdAndUpdate({ _id: id }, { $set: { isDeleted: true } }, { new: true })
+      return res.status(200).send({ status: true, msg: deletedblog })
+    }
+    res.status(404).send({ status: false, msg: "Blog does not exist" })
+
+  } catch (error) {
+    res.status(500).send({ status: false, msg: error.message })
+  }
+
+}
+
+const deletebyquery = async function (req, res) {
+  try {
+    let queryparam = req.query
+    let { category, authorId, tags, subcategory, isPublished } = queryparam
+    console.log(queryparam)
+    // let id = req.query._id
+    let blog = await blogModel.findOne(queryparam )
+    console.log(blog)
+    if (!blog) {
+      return res.status(404).send({ status: false, message: "bloger  doesnt exist" })
+    }
+    let deletedblog = await blogModel.findOneAndUpdate(queryparam,
+      { $set: { deletedAt: new Date()} ,isDeleted:true},
+      { new: true })
+    res.status(200).send({ status: true, msg: deletedblog })
+  } catch (error) {
+    res.status(500).send({ status: false, msg: error.message })
+
   }
 }
 
@@ -131,4 +180,6 @@ const updatedModel = async function (req, res) {
 module.exports.createBlog = createBlog;
 module.exports.getblog = getblog;
 module.exports.filterblog = filterblog;
-module.exports.updatedModel=updatedModel
+module.exports.updatedModel = updatedModel
+module.exports.deleteblog = deleteblog
+module.exports.deletebyquery = deletebyquery
