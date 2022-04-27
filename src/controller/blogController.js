@@ -90,61 +90,60 @@ const filterblog = async function (req, res) {
   }
 };
 
-const updatedModel = async function (req, res) {
-  try {
-    const data = req.body
-    let id = req.params.blogId
-    let body = req.body.body
-    let title = req.body.title
-    let subcategory = req.body.subcategory
-    let published = req.body
-    let { publishedAt, isPublished } = published
-
-
-    let blog = await blogModel.findOne({ $and: [{ _id: id }, { isDeleted: false }] })
-    if (!blog) {
-      return res.status(404).send({ status: false, message: "bloger  doesnt exist" })
+  const updatedModel = async function (req, res) {
+    try {
+  
+      let id = req.params.blogId
+  
+      let blog = await blogModel.findOne({ $and: [{ _id: id }, { isDeleted: false }] })
+      if (!blog) {
+        return res.send({ status: false, message: "bloger  doesnt exist" })
+      }
+  
+      if (blog.isPublished == true) {
+        return res.status(404).send({ status: false, message: "bloger  alredy published" })
+      }
+  
+  
+      if (req.body.title) {
+        blog.title = req.body.title
+      }
+  
+      if (req.body.body) {
+        blog.body = req.body.body
+      }
+  
+      if (req.body.tags) {
+        let temp1 = blog.tags
+        temp1.push(req.body.tags)
+        blog.tags = temp1
+  
+      }
+      if (req.body.subcategory) {
+        let temp2 = blog.subcategory
+        temp2.push(req.body.subcategory)
+        blog.subcategory = temp2
+      }
+  
+      blog.publishedAt = new Date()
+      blog.isPublished = true
+      blog.save()
+      res.status(200).send({ status: true, msg: blog })
+  
+  
     }
-
-    if (body) {
-      await blogModel.findOneAndUpdate({ _id: id }, { body: data.body }, { new: true })
-
-    }
-    if (title) {
-      await blogModel.findOneAndUpdate({ _id: id }, { title: data.title }, { new: true })
-
-    }
-    if (subcategory) {
-      await blogModel.findOneAndUpdate({ _id: id }, { $push: { subcategory: data.subcategory } }, { new: true })
-
-    }
-
-    if (published) {
-      await blogModel.findOneAndUpdate({ _id: id }, published, { new: true })
-
-    }
-
-
-
-    //res.send({msg: true,blog })
-
-    let updatedBlog = await blogModel.findOneAndUpdate({ _id: id }, { $push: { tags: data.tags } }, { new: true })
-    res.send({ msg: true, updatedBlog })
-
-
+    catch (err) {
+      res.status(500).send({ msg: err.message })
   }
-  catch (err) {
-    res.status(500).send({ status: false, msg: err.message })
   }
-}
 
 const deleteblog = async function (req, res) {
   try {
-    let id = req.params.blogId
+    const id = req.params.blogId
 
-    let blog = await blogModel.findOne({ $and: [{ _id: id }, { isDeleted: false }] })
+    const blog = await blogModel.findOne({ $and: [{ _id: id }, { isDeleted: false }] })
     if (blog) {
-      let deletedblog = await blogModel.findByIdAndUpdate({ _id: id }, { $set: { isDeleted: true } }, { new: true })
+      const deletedblog = await blogModel.findByIdAndUpdate({ _id: id }, { $set: { isDeleted: true } }, { new: true })
       return res.status(200).send({ status: true, msg: deletedblog })
     }
     res.status(404).send({ status: false, msg: "Blog does not exist" })
@@ -157,17 +156,17 @@ const deleteblog = async function (req, res) {
 
 const deletebyquery = async function (req, res) {
   try {
-    let queryparam = req.query
-    let { category, authorId, tags, subcategory, isPublished } = queryparam
+    const queryparam = req.query
+    const { category, authorId, tags, subcategory, isPublished } = queryparam
     console.log(queryparam)
-    // let id = req.query._id
-    let blog = await blogModel.findOne(queryparam )
+    // const id = req.query._id
+    const blog = await blogModel.findOne(queryparam)
     console.log(blog)
     if (!blog) {
       return res.status(404).send({ status: false, message: "bloger  doesnt exist" })
     }
-    let deletedblog = await blogModel.findOneAndUpdate(queryparam,
-      { $set: { deletedAt: new Date()} ,isDeleted:true},
+    const deletedblog = await blogModel.findOneAndUpdate(queryparam,
+      { $set: { deletedAt: new Date() }, isDeleted: true },
       { new: true })
     res.status(200).send({ status: true, msg: deletedblog })
   } catch (error) {
