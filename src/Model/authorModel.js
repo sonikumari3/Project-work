@@ -10,3 +10,4 @@ const authorSchema = new mongoose.Schema({
 }, { timestamps: true })
 
 module.exports = mongoose.model('author', authorSchema)
+// models are higher order constructors which create document with the help of schema
