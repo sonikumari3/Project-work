@@ -11,10 +11,18 @@ app.get('/', (req, res) => {
 })
 
 router.post("/author", authorcontroller.createAuthor)
+
 router.post("/blog", blogController.createBlog)
+
 router.get("/getblog",blogController.getblog)
+
 router.get("/filterblog",blogController.filterblog)
+
 router.put("/updateblog/:blogId", blogController.updatedModel)
+
+router.put("/publishblog/:blogId", blogController.publisheblog)
+
 router.delete("/deleteblog/:blogId", blogController.deleteblog)
+
 router.delete("/deletebyquery", blogController.deletebyquery)
 module.exports = router;

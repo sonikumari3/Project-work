@@ -1,3 +1,4 @@
+const mongoose = require('mongoose')
 const blogModel = require("../Model/blogModel");
 const authorModel = require("../Model/authorModel");
 
@@ -37,7 +38,7 @@ const getblog = async function (req, res) {
   try {
     const blog = await blogModel.find({
       $and: [{ isDeleted: false }, { isPublished: true }],
-    });
+    }).populate('authorId');
     console.log(blog);
     if (blog.length === 0) {
       return res.status(404).send({ status: false, msg: "NOT found" });
@@ -47,40 +48,64 @@ const getblog = async function (req, res) {
     res.status(500).send({ status: false, msg: error.message });
   }
 };
+
+//---------------------------------------------------////////////
+
 const filterblog = async function (req, res) {
+ 
   try {
     const cat = req.query.category;
+    console.log(cat)
+
     const subcat = req.query.subcategory;
     const tag = req.query.tags;
+    console.log(tag)
     const query = req.query;
     const id = query.authorId;
-    const validauthor = await authorModel.findById({ _id: id });
-    if (!validauthor) {
+    
+    //validate author
+    if (id) {
+      const validauthor = await authorModel.findById({ _id: id }).select({_id:1});
+      // console.log(validauthor)
+      if(!validauthor)
       return res
         .status(400)
         .send({ status: false, msg: "Author does not exist" });
     }
+
+    if(cat){
     const validcat = await blogModel.find({ category: cat });
-    if (!validcat) {
-      return res
+    console.log(validcat)
+    if (validcat.length==0) {
+      return res                                     
         .status(400)
         .send({ status: false, msg: "category does not exist " });
     }
-    const validtag = await blogModel.find({ tags: tag });
-    if (!validtag) {
+  }
+
+    if(tag){
+    const validtag = await blogModel.find({ tags: tag});
+    console.log(validtag)
+    if (validtag.length==0) {
       return res
         .status(400)
         .send({ status: false, msg: "tag does not exist " });
     }
+  }
+
+  if(subcat){
     const validsubcategory = await blogModel.find({ subcategory: subcat });
-    if (!validsubcategory) {
+    if (validsubcategory.length==0) {
       return res
         .status(400)
         .send({ status: false, msg: "subcategory does not exist " });
     }
+    }
     const { authorId, category, tags, subcategory } = query;
     const blog = await blogModel.find(query);
     console.log(blog);
+    console.log(blog.length);
+    
     if (blog.length === 0) {
       return res.status(404).send({ status: false, msg: "NOT found" });
     }
@@ -92,7 +117,7 @@ const filterblog = async function (req, res) {
 
 const updatedModel = async function (req, res) {
   try {
-
+ 
     let id = req.params.blogId
 
     let blog = await blogModel.findOne({ $and: [{ _id: id }, { isDeleted: false }] })
@@ -100,10 +125,7 @@ const updatedModel = async function (req, res) {
       return res.send({ status: false, message: "blog doesnt exist" })
     }
 
-    if (blog.isPublished == true) {
-      return res.status(404).send({ status: false, message: "blog  already published" })
-    }
-
+   
 
     if (req.body.title) {
       blog.title = req.body.title
@@ -125,16 +147,32 @@ const updatedModel = async function (req, res) {
       blog.subcategory = temp2
     }
 
-    blog.publishedAt = new Date(Date.now())
-    blog.isPublished = true
-    blog.save()
-    res.status(200).send({ status: true, msg: blog })
-
 
   }
   catch (err) {
     res.status(500).send({ msg: err.message })
   }
+}
+
+const publisheblog = async function (req, res) {
+
+  let id = req.params.blogId
+
+  let blog = await blogModel.findOne({ _id: id })
+
+  if (blog.isPublished == true) {
+    return res.status(404).send({ status: false, message: "blog  already published" })
+  }
+
+  if (!blog) {
+    return res.send({ status: false, message: "blog doesnt exist" })
+  }
+
+  blog.publishedAt = new Date(Date.now())
+  blog.isPublished = true
+  blog.save()
+  res.status(200).send({ status: true, msg: blog })
+
 }
 
 const deleteblog = async function (req, res) {
@@ -159,13 +197,13 @@ const deletebyquery = async function (req, res) {
     const queryparam = req.query
     const { category, authorId, tags, subcategory, isPublished } = queryparam
     console.log(queryparam)
-
+    
     const blog = await blogModel.find(queryparam).select({ title: 1, _id: 0 })
     console.log(blog)
-    console.log(blog[0].title)
+    // console.log(blog[0].title)
 
     //blog not found
-    if (!blog) {
+    if (blog.length === 0) {
       return res.status(404).send({ status: false, message: "blog does not exist" })
     }
 
@@ -198,5 +236,6 @@ module.exports.createBlog = createBlog;
 module.exports.getblog = getblog;
 module.exports.filterblog = filterblog;
 module.exports.updatedModel = updatedModel
+module.exports.publisheblog = publisheblog
 module.exports.deleteblog = deleteblog
-module.exports.deletebyquery = deletebyquery
+module.exports.deletebyquery = deletebyquery 

@@ -6,8 +6,9 @@ const createAuthor = async function (req, res) {
         const lname = req.body.lname
         const title = req.body.title
         const email = req.body.email
-        const userEmail = await authorModel.findOne({ email: email })
         const password = req.body.password
+        const userEmail = await authorModel.findOne({ email: email })
+        
         if (!fname) {
             return res.status(400).send({ status: false, msg: "first name required" })
         }
