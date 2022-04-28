@@ -1,3 +1,4 @@
+let jwt = require('jsonwebtoken')
 const authorModel = require('../Model/authorModel')
 
 const createAuthor = async function (req, res) {
@@ -39,7 +40,6 @@ const createAuthor = async function (req, res) {
     }
 }
 
-let jwt = require('jsonwebtoken')
 
 
 const loginauthor = async function (req,res){
@@ -47,7 +47,7 @@ const loginauthor = async function (req,res){
         let username = req.body.email
         let password = req.body.password
         //check valid mail
-        let validmail = !/^\w+([\.-]?\w+)@\w+([\. -]?\w+)(\.\w{2,3})+$/.test(email)
+        let validmail = !/^\w+([\.-]?\w+)@\w+([\. -]?\w+)(\.\w{2,3})+$/.test(username)
       
         if(validmail){
             return res.status(400).send({ status: false, msg: "email is not valid" })
