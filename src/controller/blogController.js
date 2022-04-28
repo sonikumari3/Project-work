@@ -52,7 +52,7 @@ const getblog = async function (req, res) {
 //---------------------------------------------------////////////
 
 const filterblog = async function (req, res) {
- 
+
   try {
     const cat = req.query.category;
     console.log(cat)
@@ -62,50 +62,50 @@ const filterblog = async function (req, res) {
     console.log(tag)
     const query = req.query;
     const id = query.authorId;
-    
+
     //validate author
     if (id) {
-      const validauthor = await authorModel.findById({ _id: id }).select({_id:1});
+      const validauthor = await authorModel.findById({ _id: id }).select({ _id: 1 });
       // console.log(validauthor)
-      if(!validauthor)
-      return res
-        .status(400)
-        .send({ status: false, msg: "Author does not exist" });
+      if (!validauthor)
+        return res
+          .status(400)
+          .send({ status: false, msg: "Author does not exist" });
     }
 
-    if(cat){
-    const validcat = await blogModel.find({ category: cat });
-    console.log(validcat)
-    if (validcat.length==0) {
-      return res                                     
-        .status(400)
-        .send({ status: false, msg: "category does not exist " });
+    if (cat) {
+      const validcat = await blogModel.find({ category: cat });
+      console.log(validcat)
+      if (validcat.length == 0) {
+        return res
+          .status(400)
+          .send({ status: false, msg: "category does not exist " });
+      }
     }
-  }
 
-    if(tag){
-    const validtag = await blogModel.find({ tags: tag});
-    console.log(validtag)
-    if (validtag.length==0) {
-      return res
-        .status(400)
-        .send({ status: false, msg: "tag does not exist " });
+    if (tag) {
+      const validtag = await blogModel.find({ tags: tag });
+      console.log(validtag)
+      if (validtag.length == 0) {
+        return res
+          .status(400)
+          .send({ status: false, msg: "tag does not exist " });
+      }
     }
-  }
 
-  if(subcat){
-    const validsubcategory = await blogModel.find({ subcategory: subcat });
-    if (validsubcategory.length==0) {
-      return res
-        .status(400)
-        .send({ status: false, msg: "subcategory does not exist " });
-    }
+    if (subcat) {
+      const validsubcategory = await blogModel.find({ subcategory: subcat });
+      if (validsubcategory.length == 0) {
+        return res
+          .status(400)
+          .send({ status: false, msg: "subcategory does not exist " });
+      }
     }
     const { authorId, category, tags, subcategory } = query;
     const blog = await blogModel.find(query);
     console.log(blog);
     console.log(blog.length);
-    
+
     if (blog.length === 0) {
       return res.status(404).send({ status: false, msg: "NOT found" });
     }
@@ -117,15 +117,16 @@ const filterblog = async function (req, res) {
 
 const updatedModel = async function (req, res) {
   try {
- 
+
     let id = req.params.blogId
+    console.log(id)
 
     let blog = await blogModel.findOne({ $and: [{ _id: id }, { isDeleted: false }] })
     if (!blog) {
       return res.send({ status: false, message: "blog doesnt exist" })
     }
 
-   
+
 
     if (req.body.title) {
       blog.title = req.body.title
@@ -146,6 +147,9 @@ const updatedModel = async function (req, res) {
       temp2.push(req.body.subcategory)
       blog.subcategory = temp2
     }
+
+    blog.save()
+    res.status(200).send({ status: true, msg: blog })
 
 
   }
@@ -197,7 +201,7 @@ const deletebyquery = async function (req, res) {
     const queryparam = req.query
     const { category, authorId, tags, subcategory, isPublished } = queryparam
     console.log(queryparam)
-    
+
     const blog = await blogModel.find(queryparam).select({ title: 1, _id: 0 })
     console.log(blog)
     // console.log(blog[0].title)
