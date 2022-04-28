@@ -1,4 +1,4 @@
-// express is an fast, unopinionated(basic and easy to code with very min. friction) and server-side web framework for node.js
+// express is an fast and server-side web framework for node.js
 const express = require('express')
 const mongoose = require('mongoose')
 const bodyParser = require('body-parser');

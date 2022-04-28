@@ -102,7 +102,7 @@ const filterblog = async function (req, res) {
       }
     }
     const { authorId, category, tags, subcategory } = query;
-    const blog = await blogModel.find(query);
+    const blog = await blogModel.find(query).populate('authorId');
     console.log(blog);
     console.log(blog.length);
 
@@ -162,7 +162,7 @@ const publisheblog = async function (req, res) {
 
   let id = req.params.blogId
 
-  let blog = await blogModel.findOne({ _id: id })
+  let blog = await blogModel.findOne({ $and: [{ _id: id }, { isDeleted: false }] })
 
   if (blog.isPublished == true) {
     return res.status(404).send({ status: false, message: "blog  already published" })
@@ -185,7 +185,7 @@ const deleteblog = async function (req, res) {
 
     const blog = await blogModel.findOne({ $and: [{ _id: id }, { isDeleted: false }] })
     if (blog) {
-      const deletedblog = await blogModel.findByIdAndUpdate({ _id: id }, { $set: { isDeleted: true } }, { new: true })
+      const deletedblog = await blogModel.findByIdAndUpdate({ _id: id }, { $set: { isDeleted: true ,deletedAt:new Date(Date.now())} }, { new: true })
       return res.status(200).send({ status: true, msg: deletedblog })
     }
     res.status(404).send({ status: false, msg: "Blog does not exist" })
