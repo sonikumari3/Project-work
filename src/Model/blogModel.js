@@ -1,11 +1,11 @@
-const mongoose = require('mongoose')
+const mongoose = require('mongoose')//import mongoose to create schema
 
 const blogSchema = new mongoose.Schema({
     title:  String,
     body:  String,
     authorId: {
         type: mongoose.Schema.Types.ObjectId,
-        ref: "author"
+        ref: "author"// refered author collection
     },
     tags: [ {type: String} ],
     category: String,
@@ -21,6 +21,7 @@ const blogSchema = new mongoose.Schema({
     
 }, { timestamps: true })
 
+//export schema
 module.exports = mongoose.model('blogs', blogSchema)
 
 

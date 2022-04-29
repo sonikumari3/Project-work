@@ -1,9 +1,9 @@
-const mongoose = require('mongoose')
+const mongoose = require('mongoose')//import mongoose to create schema
 
 const authorSchema = new mongoose.Schema({
     fname: String,
     lname: String,
-    title: { type: String, enum: ["Mr", "Mrs", "Miss"] },
+    title: { type: String, enum: ["Mr", "Mrs", "Miss"] },// used enum to recieve only predefinded input
     email: String,
     password: String
 
