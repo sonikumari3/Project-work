@@ -1,6 +1,8 @@
 //Import Models
 const blogModel = require("../Model/blogModel");
 const authorModel = require("../Model/authorModel");
+const { Route } = require("express");
+const { Router } = require("express");
 
 //create blog function
 const createBlog = async function (req, res) {
@@ -22,6 +24,20 @@ const createBlog = async function (req, res) {
     }
     if (!category) {
       return res.status(400).send({ status: false, msg: "Category is required" });
+    }
+
+    //blog validation
+    bodylength = !/^.{30,}$/.test(body)
+
+    if (bodylength) {
+      return res.status(400).send({ status: false, msg: "Body should be of minimum 30 characters" })
+    }
+
+    //authorId validation
+    validauthorId = !/^(?=[a-f\d]{24}$)(\d+[a-f]|[a-f]+\d)/.test(auth)
+
+    if (validauthorId) {
+      return res.status(400).send({ status: false, msg: "Invalid authorId" })
     }
 
     //authorId validation
@@ -140,6 +156,12 @@ const updatedModel = async function (req, res) {
 
     //Reading id from path param
     let id = req.params.blogId
+  
+    //validate blogId
+    let validid = !/^(?=[a-f\d]{24}$)(\d+[a-f]|[a-f]+\d)/.test(id)
+    if (validid) {
+      return res.send({ status: false, message: "enter valid blogId" })
+    }
 
     //find blog with above id which are not deleted
     let blog = await blogModel.findOne({ $and: [{ _id: id }, { isDeleted: false }] })
@@ -257,7 +279,7 @@ const deletebyquery = async function (req, res) {
 
     //find blog
     const blog = await blogModel.find(queryparam).select({ title: 1, _id: 0 })
- 
+
     //blog not found
     if (blog.length === 0) {
       return res.status(404).send({ status: false, message: "blog does not exist" })

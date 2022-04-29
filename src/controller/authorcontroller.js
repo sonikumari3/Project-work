@@ -21,11 +21,27 @@ const createAuthor = async function (req, res) {
         if (!title) {
             return res.status(400).send({ status: false, msg: "title name required" })
         }
+        if (!email) {
+            return res.status(400).send({ status: false, msg: "Enter email" })
+        }
         if (!password) {
             return res.status(400).send({ status: false, msg: "enter password" })
         }
 
-        //check email format
+        //name validation
+        let validfname = !/^[a-zA-Z ]{2,30}$/.test(fname)
+
+        if (validfname) {
+            return res.status(400).send({ status: false, msg: "fname contain alphabets only" })
+        }
+
+        let validlname = !/^[a-zA-Z ]{2,30}$/.test(lname)
+
+        if (validlname) {
+            return res.status(400).send({ status: false, msg: "lname contain alphabets only" })
+        }
+
+        //email validation
         let validmail = !/^\w+([\.-]?\w+)@\w+([\. -]?\w+)(\.\w{2,3})+$/.test(email)
 
         if (validmail) {
@@ -33,10 +49,17 @@ const createAuthor = async function (req, res) {
         }
 
         //Unique mail validation - reading wether author already exists with entered email
-        const userEmail = await authorModel.findOne({ email: email })
+        const authorEmail = await authorModel.findOne({ email: email })
 
-        if (userEmail) {
+        if (authorEmail) {
             return res.status(400).send({ msg: "user already exist" })
+        }
+
+        //password validation
+        let strongPassword = !/^(?=.*?[A-Z])(?=.*?[a-z])(?=.*?[0-9])(?=.*?[#?!@$%^&*-]).{8,}$/.test(password)
+
+        if (strongPassword) {
+            return res.status(400).send({ status: false, msg: "Weak password - password must contain at least eight characters, at least one number and both lower and uppercase letters and special characters" })
         }
 
         //Reading inputs from req.body
