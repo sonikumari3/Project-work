@@ -59,7 +59,7 @@ const createAuthor = async function (req, res) {
         let strongPassword = !/^(?=.*?[A-Z])(?=.*?[a-z])(?=.*?[0-9])(?=.*?[#?!@$%^&*-]).{8,}$/.test(password)
 
         if (strongPassword) {
-            return res.status(400).send({ status: false, msg: "Weak password - password must contain at least eight characters, at least one number and both lower and uppercase letters and special characters" })
+            return res.status(400).send({ status: false, msg: "Weak password - must contain at least eight characters, at least one number and both lower and uppercase letters and special characters"})
         }
 
         //Reading inputs from req.body
@@ -75,6 +75,7 @@ const createAuthor = async function (req, res) {
     }
 }
 
+////////////////////////////////////////////////////////////////////////////////////////////////////
 
 //login function
 const loginauthor = async function (req, res) {

@@ -1,8 +1,7 @@
 //Import Models
 const blogModel = require("../Model/blogModel");
 const authorModel = require("../Model/authorModel");
-const { Route } = require("express");
-const { Router } = require("express");
+
 
 //create blog function
 const createBlog = async function (req, res) {
@@ -153,7 +152,6 @@ const filterblog = async function (req, res) {
 
 const updatedModel = async function (req, res) {
   try {
-
     //Reading id from path param
     let id = req.params.blogId
   
@@ -216,6 +214,12 @@ const publisheblog = async function (req, res) {
     //Reading id from path params
     let id = req.params.blogId
 
+     //validate blogId
+     let validid = !/^(?=[a-f\d]{24}$)(\d+[a-f]|[a-f]+\d)/.test(id)
+     if (validid) {
+       return res.send({ status: false, message: "enter valid blogId" })
+     }
+
     //find blog with above id
     let blog = await blogModel.findOne({ $and: [{ _id: id }, { isDeleted: false }] })
 
@@ -250,6 +254,12 @@ const deleteblog = async function (req, res) {
     //reading id
     const id = req.params.blogId
 
+     //validate blogId
+     let validid = !/^(?=[a-f\d]{24}$)(\d+[a-f]|[a-f]+\d)/.test(id)
+     if (validid) {
+       return res.send({ status: false, message: "enter valid blogId" })
+     }
+     
     //finding blog with above id
     const blog = await blogModel.findOne({ $and: [{ _id: id }, { isDeleted: false }] })
 
@@ -307,6 +317,17 @@ const deletebyquery = async function (req, res) {
   }
 }
 
+//////////////////////////////////////////////////////////////////////////////////////////
+
+const Endpoint = function (req, res){
+  try {
+    res.send({ status: false, message: "Enter Valid Endpoint" })
+  } catch (error) {
+    res.status(500).send({ status: false, msg: error.message })
+  }
+}
+
+
 //Exported all function
 module.exports.createBlog = createBlog;
 module.exports.getblog = getblog;
@@ -315,3 +336,6 @@ module.exports.updatedModel = updatedModel
 module.exports.publisheblog = publisheblog
 module.exports.deleteblog = deleteblog
 module.exports.deletebyquery = deletebyquery 
+module.exports.Endpoint = Endpoint
+
+
