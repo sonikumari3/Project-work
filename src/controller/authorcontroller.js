@@ -39,6 +39,14 @@ const createAuthor = async function (req, res) {
             return res.status(400).send({ msg: "user already exist" })
         }
 
+        //check password format
+        let validPassword = !/^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,10}$/.test(password)
+
+        if(validPassword) {
+            return res.status(400).send({ status: false, msg: "Weak Password" })
+        }
+
+
         //Reading inputs from req.body
         const data = req.body
         //Create author
