@@ -25,6 +25,22 @@ const createAuthor = async function (req, res) {
             return res.status(400).send({ status: false, msg: "enter password" })
         }
 
+        //check name format
+        let validName =  !/^[a-zA-Z ]{2,30}$/.test(fname) || !/^[a-zA-Z ]{2,30}$/.test(lname) 
+        if(validName) {
+            return res.status(400).send({ status: false, msg: "Name must be in alphabets" })
+        }
+
+        // let validFname =  !/^[a-zA-Z ]{2,30}$/.test(fname)
+        // if(validName) {
+        //     return res.status(400).send({ status: false, msg: "Name must be in alphabets" })
+        // }
+
+        // let validName =  !/^[a-zA-Z ]{2,30}$/.test((fname && lname))
+        // if(validName) {
+        //     return res.status(400).send({ status: false, msg: "Name must be in alphabets" })
+        // }
+
         //check email format
         let validmail = !/^\w+([\.-]?\w+)@\w+([\. -]?\w+)(\.\w{2,3})+$/.test(email)
 
@@ -40,7 +56,7 @@ const createAuthor = async function (req, res) {
         }
 
         //check password format
-        let validPassword = !/^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,10}$/.test(password)
+        let validPassword = !/^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$/.test(password)
 
         if(validPassword) {
             return res.status(400).send({ status: false, msg: "Weak Password" })
