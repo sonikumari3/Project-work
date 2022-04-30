@@ -253,6 +253,9 @@ const deleteblog = async function (req, res) {
   try {
     //reading id
     const id = req.params.blogId
+    if(!id){
+      return res.send({ status: false, message: "Enter blogID" })
+    }
 
      //validate blogId
      let validid = !/^(?=[a-f\d]{24}$)(\d+[a-f]|[a-f]+\d)/.test(id)
@@ -285,7 +288,7 @@ const deletebyquery = async function (req, res) {
     //Reading query params input
     const queryparam = req.query
     //assigning values to variables
-    const { category, authorId, tags, subcategory, isPublished } = queryparam
+    const { category, authorId, tags, subcategory, isPublished } = queryparam//destructuring
 
     //find blog
     const blog = await blogModel.find(queryparam).select({ title: 1, _id: 0 })
