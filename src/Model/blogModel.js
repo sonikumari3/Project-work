@@ -1,15 +1,20 @@
 const mongoose = require('mongoose')//import mongoose to create schema
 
 const blogSchema = new mongoose.Schema({
-    title:  String,
-    body:  String,
+    title:  {type:String,
+    trim:true},
+    body:  {type:String,
+        trim:true},
     authorId: {
         type: mongoose.Schema.Types.ObjectId,
         ref: "author"// refered author collection
     },
-    tags: [ {type: String} ],
-    category: String,
-    subcategory: [ {type: String} ],
+    tags:  {type:Array,
+        trim:true} ,
+    category: {type:String,
+        trim:true},
+    subcategory: {type:Array,
+        trim:true} ,
     deletedAt: {type: String, default: null},
     isDeleted: {
         type:Boolean, default: false

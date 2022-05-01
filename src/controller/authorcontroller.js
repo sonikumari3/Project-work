@@ -155,8 +155,7 @@ const loginauthor = async function (req, res) {
             group: "40",
             Project: "Blog"
         }, "group40-phase2");
-        console.log(token)
-        res.setHeader['x-api-key']
+        
         res.send({ status: true, msg: token })
 
     } catch (error) {
