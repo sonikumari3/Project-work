@@ -14,7 +14,6 @@ const authorize = function (req, res, next) {
 
         //if token found then decode token using secret key
         let decode = jwt.verify(token, "group40-phase2");
-        console.log(decode)
 
         //if token is not valid
         if (!decode) {
@@ -30,7 +29,7 @@ const authorize = function (req, res, next) {
         if (logged != authorId) {
             return res.send({ status: false, msg: "Author not allowed" })
         }
-        
+
         //if logged in and author making changes are same then auth. successful and move next function 
         next()
 
@@ -38,7 +37,7 @@ const authorize = function (req, res, next) {
         return res.status(400).send({ status: false, msg: error.message })
     }
 
-  
+
 }
 
 //export function

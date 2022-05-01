@@ -32,12 +32,15 @@ router.get("/filterblog", authentication.authentication, blogController.filterbl
 
 //update blog api with middleware
 router.put("/updateblog/:blogId", authentication.authentication, auth.authorize, blogController.updatedModel)
+router.put("/updateblog", authentication.authentication, auth.authorize, blogController.Endpoint)
 
 //publish blog api with middleware
 router.put("/publishblog/:blogId", authentication.authentication, auth.authorize, blogController.publisheblog)
+router.put("/publishblog", authentication.authentication, auth.authorize, blogController.Endpoint)
 
 //delete blog api with middleware
 router.delete("/deleteblog/:blogId", authentication.authentication, auth.authorize, blogController.deleteblog)
+router.delete("/deleteblog", authentication.authentication, auth.authorize, blogController.Endpoint)
 router.delete("/deletebyquery", authentication.authentication, auth.authorize, blogController.deletebyquery)
 
 //export router
