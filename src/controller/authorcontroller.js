@@ -1,85 +1,33 @@
 let jwt = require('jsonwebtoken')//Import jwt
 const authorModel = require('../Model/authorModel')//Import authorModel
 
-//create author function
+
+//create Author 
 const createAuthor = async function (req, res) {
+    //using try catch block function
     try {
         //Reading inputs from req.body
-        const fname = req.body.fname
-        const lname = req.body.lname
-        const title = req.body.title
-        const email = req.body.email
-        const password = req.body.password
-
-        //Mandotory fields
-        if (!fname) {
-            return res.status(400).send({ status: false, msg: "first name required" })
+        const authorData = req.body;
+        //validate author
+        const errors = await validateAuthor(authorData);
+        if (errors.length > 0) {
+            return res.status(400).send({ status: false, msg: "Mandatory fields are missing", errors: errors })
         }
-        if (!lname) {
-            return res.status(400).send({ status: false, msg: "last name required" })
-        }
-        if (!title) {
-            return res.status(400).send({ status: false, msg: "title name required" })
-        }
-        if (!email) {
-            return res.status(400).send({ status: false, msg: "Enter email" })
-        }
-        // if (!password) {
-        //     return res.status(400).send({ status: false, msg: "enter password" })
-        // }
+        console.log("authorData1", authorData);
 
-        //name validation
-        let validfname = !/^[a-zA-Z ]{2,30}$/.test(fname)
+        // create author
+        const author = await authorModel.create(authorData)
 
-        if (validfname) {
-            return res.status(400).send({ status: false, msg: "fname contain alphabets only" })
-        }
-
-        let validlname = !/^[a-zA-Z ]{2,30}$/.test(lname)
-
-        if (validlname) {
-            return res.status(400).send({ status: false, msg: "lname contain alphabets only" })
-        }
-
-        //email validation
-        let validmail = !/^\w+([\.-]?\w+)@\w+([\. -]?\w+)(\.\w{2,3})+$/.test(email)
-
-        if (validmail) {
-            return res.status(400).send({ status: false, msg: "email is not valid" })
-        }
-
-        //Unique mail validation - reading wether author already exists with entered email
-        const authorEmail = await authorModel.findOne({ email: email })
-
-        if (authorEmail) {
-            return res.status(400).send({ msg: "user already exist" })
-        }
-
-        //password validation
-        if (password) {
-            let strongPassword = !/^(?=.*?[A-Z])(?=.*?[a-z])(?=.*?[0-9])(?=.*?[#?!@$%^&*-]).{8,12}$/.test(password)
-
-            if (strongPassword) {
-                return res.status(400).send({ status: false, msg: "Weak password - must contain characters between 8-12, at least one number and both lower and uppercase letters and special characters" })
-            }
-        }
-
-
-        //Reading inputs from req.body
-        const data = req.body
-        //Create author
-        const author = await authorModel.create(data)
-
-        //auto generate strong password 
-        if (!password) {
-           // <---Obviously copied from google----> //
+        //auto generate password if password is missing
+        if (!authorData.password && authorData.password.length == 0) {
+            // <---Obviously copied from google----> //
             function password_generator(len) {
-                var length = (len) ? (len) : (10);
-                var string = "abcdefghijklmnopqrstuvwxyz"; //to upper 
-                var numeric = '0123456789';
-                var punctuation = '#?!@$%^&*-';//!@#$%^&*()_+~`|}{[]\:;?><,./-=
-                var password = "";
-                var character = "";
+                let length = (len) ? (len) : (10);
+                let string = "abcdefghijklmnopqrstuvwxyz"; //to upper 
+                let numeric = '0123456789';
+                let punctuation = '#?!@$%^&*-';//!@#$%^&*()_+~`|}{[]\:;?><,./-=
+                let password = "";
+                let character = "";
                 while (password.length < length) {
                     entity1 = Math.ceil(string.length * Math.random() * Math.random());
                     entity2 = Math.ceil(numeric.length * Math.random() * Math.random());
@@ -105,16 +53,67 @@ const createAuthor = async function (req, res) {
             return res.status(201).send({ status: true, msg: author, alert: 'Save this password to login' })
         }
 
-
-        author.save()
         //send created author in response
         res.status(201).send({ status: true, msg: author })
 
-    } catch (error) {
+    }
+    catch (error) {
+        // return a error if any case fail on try block 
         res.status(500).send({ status: false, msg: error.message });
-
     }
 }
+
+
+const validateAuthor = async function (authorData) {
+    const errors = [];
+    //Mandotory fields
+    if (!authorData.fname) {
+        errors.push("first name required")
+    }
+
+    if (!authorData.lname) {
+        errors.push("last name required")
+    }
+
+    if (!authorData.title) {
+        errors.push("title name required")
+    }
+
+    if (!authorData.email) {
+        errors.push("email is required")
+    }
+
+    // if (!authorData.password) {
+    //     errors.push("Enter your own password or Save the autogenerated password after author creation")
+    // }
+
+    //email validation
+    if (authorData.email) {
+        let validmail = !/^\w+([\.-]?\w+)@\w+([\. -]?\w+)(\.\w{2,3})+$/.test(authorData.email)
+        if (validmail) {
+            errors.push("Invalid email")
+        }
+    }
+
+    //password validation
+    if (authorData.password) {
+        let strongPassword = !/^(?=.*?[A-Z])(?=.*?[a-z])(?=.*?[0-9])(?=.*?[#?!@$%^&*-]).{8,12}$/.test(authorData.password)
+
+        if (strongPassword) {
+            errors.push("Create a strong password or leave it blank and save the auto generated password")
+        }
+    }
+
+    if (errors.length === 0) {
+        //unique email validation
+        const userEmail = await authorModel.findOne({ email: authorData.email })
+        //return a error if email already exist in authorModel
+        if (userEmail) {
+            errors.push("email already exist")
+        }
+    }
+    return errors;
+};
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
