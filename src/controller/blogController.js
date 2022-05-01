@@ -262,7 +262,7 @@ const deleteblog = async function (req, res) {
 
     //if No blog found 
     if (!blog) {
-      res.status(404).send({ status: false, msg: "Blog does not exist" })
+      return res.status(404).send({ status: false, msg: "Blog does not exist" })
     }
 
     //if blog found 

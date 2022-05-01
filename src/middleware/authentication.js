@@ -5,18 +5,26 @@ const authentication = async function (req, res, next) {
     try {
         //Validate Author
         let authorId = req.headers["authorid"]
-        if(!authorId) {
-            return res.status(404).send({status:false, msg:"Author Id is not Present"})
+        if (!authorId) {
+            return res.status(404).send({ status: false, msg: "Author Id is not Present" })
         }
-        let author = await authorModel.findById({_id:authorId})
-        if(!author) {
-            return res.status(404).send({status:false, msg:"Author does not exist"})
+
+        //authorId validation
+        validauthorId = !/^(?=[a-f\d]{24}$)(\d+[a-f]|[a-f]+\d)/.test(authorId)
+
+        if (validauthorId) {
+            return res.status(400).send({ status: false, msg: "Invalid authorId" })
         }
-        
+
+        let author = await authorModel.findById({ _id: authorId })
+        if (!author) {
+            return res.status(404).send({ status: false, msg: "Author does not exist" })
+        }
+
         //Reading credential
         let username = author.email
         let password = author.password
-        
+
         //Reading token
         let token = req.headers["x-Api-Key"];
         //check lowercase

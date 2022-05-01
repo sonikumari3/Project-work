@@ -19,7 +19,7 @@ const createAuthor = async function (req, res) {
         const author = await authorModel.create(authorData)
 
         //auto generate password if password is missing
-        if (!authorData.password && authorData.password.length == 0) {
+        if (!authorData.password) {
             // <---Obviously copied from google----> //
             function password_generator(len) {
                 let length = (len) ? (len) : (10);
@@ -124,11 +124,18 @@ const loginauthor = async function (req, res) {
         let username = req.body.email
         let password = req.body.password
 
+         //check email format
+       
+
+         if (!username) {
+             return res.status(400).send({ status: false, msg: "enter email" })
+         }
+
         //check email format
         let validmail = !/^\w+([\.-]?\w+)@\w+([\. -]?\w+)(\.\w{2,3})+$/.test(username)
 
         if (validmail) {
-            return res.status(400).send({ status: false, msg: "email is not valid" })
+            return res.status(400).send({ status: false, msg: "Invalid email" })
         }
 
         //Require password
