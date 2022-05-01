@@ -1,7 +1,7 @@
 //Import Models
 const blogModel = require("../Model/blogModel");
 const authorModel = require("../Model/authorModel");
-
+let jwt = require('jsonwebtoken')
 
 //create blog function
 const createBlog = async function (req, res) {
@@ -285,18 +285,26 @@ const deletebyquery = async function (req, res) {
     const { category, authorId, tags, subcategory, isPublished } = queryparam//destructuring
 
     //find blog
-    const blog = await blogModel.find(queryparam).select({ title: 1, _id: 0 })
+    const blogs = await blogModel.find(queryparam);
+
+    let token = req.headers["x-Api-Key"];
+        // //check lowercase for token
+    if (!token) token = req.headers["x-api-key"]
+    //if token found then decode token using secret key
+    let decode = jwt.verify(token, "group40-phase2");
+    let loggedAuthorId = decode.authorId
+    const authorsBlogs = blogs.filter(b => b.authorId == loggedAuthorId)
 
     //blog not found
-    if (blog.length === 0) {
+    if (authorsBlogs.length === 0) {
       return res.status(404).send({ status: false, message: "blog does not exist" })
     }
 
     //Declared empty array
     let arrayOfBlogs = []
     //for loop to store all the blog's title to delete
-    for (let i = 0; i < blog.length; i++) {
-      let blogid = blog[i].title
+    for (let i = 0; i < authorsBlogs.length; i++) {
+      let blogid = authorsBlogs[i].title
       arrayOfBlogs.push(blogid)
     }
 
