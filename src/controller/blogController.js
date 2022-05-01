@@ -154,7 +154,7 @@ const updatedModel = async function (req, res) {
   try {
     //Reading id from path param
     let id = req.params.blogId
-  
+
     //validate blogId
     let validid = !/^(?=[a-f\d]{24}$)(\d+[a-f]|[a-f]+\d)/.test(id)
     if (validid) {
@@ -179,19 +179,13 @@ const updatedModel = async function (req, res) {
       blog.body = req.body.body
     }
 
-    //adding tag using push function
+    //assing a tags in a body to tags in a blog
     if (req.body.tags) {
-      let temp1 = blog.tags
-      temp1.push(req.body.tags)
-      blog.tags = temp1
-
+      blog.tags.push(...req.body.tags)
     }
-
-    //adding subcategory
+    //assing a subcategory in a body to subcategory in a blog
     if (req.body.subcategory) {
-      let temp2 = blog.subcategory
-      temp2.push(req.body.subcategory)
-      blog.subcategory = temp2
+      blog.subcategory.push(...req.body.subcategory)
     }
 
     //save changes in blog
@@ -214,11 +208,11 @@ const publisheblog = async function (req, res) {
     //Reading id from path params
     let id = req.params.blogId
 
-     //validate blogId
-     let validid = !/^(?=[a-f\d]{24}$)(\d+[a-f]|[a-f]+\d)/.test(id)
-     if (validid) {
-       return res.send({ status: false, message: "enter valid blogId" })
-     }
+    //validate blogId
+    let validid = !/^(?=[a-f\d]{24}$)(\d+[a-f]|[a-f]+\d)/.test(id)
+    if (validid) {
+      return res.send({ status: false, message: "enter valid blogId" })
+    }
 
     //find blog with above id
     let blog = await blogModel.findOne({ $and: [{ _id: id }, { isDeleted: false }] })
@@ -253,16 +247,16 @@ const deleteblog = async function (req, res) {
   try {
     //reading id
     const id = req.params.blogId
-    if(!id){
+    if (!id) {
       return res.send({ status: false, message: "Enter blogID" })
     }
 
-     //validate blogId
-     let validid = !/^(?=[a-f\d]{24}$)(\d+[a-f]|[a-f]+\d)/.test(id)
-     if (validid) {
-       return res.send({ status: false, message: "enter valid blogId" })
-     }
-     
+    //validate blogId
+    let validid = !/^(?=[a-f\d]{24}$)(\d+[a-f]|[a-f]+\d)/.test(id)
+    if (validid) {
+      return res.send({ status: false, message: "enter valid blogId" })
+    }
+
     //finding blog with above id
     const blog = await blogModel.findOne({ $and: [{ _id: id }, { isDeleted: false }] })
 
@@ -322,7 +316,7 @@ const deletebyquery = async function (req, res) {
 
 //////////////////////////////////////////////////////////////////////////////////////////
 
-const Endpoint = function (req, res){
+const Endpoint = function (req, res) {
   try {
     res.send({ status: false, message: "Enter Valid Endpoint" })
   } catch (error) {
@@ -338,7 +332,7 @@ module.exports.filterblog = filterblog;
 module.exports.updatedModel = updatedModel
 module.exports.publisheblog = publisheblog
 module.exports.deleteblog = deleteblog
-module.exports.deletebyquery = deletebyquery 
+module.exports.deletebyquery = deletebyquery
 module.exports.Endpoint = Endpoint
 
 
