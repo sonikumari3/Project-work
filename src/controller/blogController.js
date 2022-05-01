@@ -179,19 +179,13 @@ const updatedModel = async function (req, res) {
       blog.body = req.body.body
     }
 
-    //adding tag using push function
+    //assing a tags in a body to tags in a blog
     if (req.body.tags) {
-      let temp1 = blog.tags
-      temp1.push(req.body.tags)
-      blog.tags = temp1
-
+      blog.tags.push(...req.body.tags)
     }
-
-    //adding subcategory
+    //assing a subcategory in a body to subcategory in a blog
     if (req.body.subcategory) {
-      let temp2 = blog.subcategory
-      temp2.push(req.body.subcategory)
-      blog.subcategory = temp2
+      blog.subcategory.push(...req.body.subcategory)
     }
 
     //save changes in blog

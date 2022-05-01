@@ -19,7 +19,7 @@ const createAuthor = async function (req, res) {
         const author = await authorModel.create(authorData)
 
         //auto generate password if password is missing
-        if (!authorData.password && authorData.password.length == 0) {
+        if (!authorData.password) {
             // <---Obviously copied from google----> //
             function password_generator(len) {
                 let length = (len) ? (len) : (10);
