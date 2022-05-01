@@ -74,12 +74,12 @@ const createAuthor = async function (req, res) {
         if (!password) {
            // <---Obviously copied from google----> //
             function password_generator(len) {
-                var length = (len) ? (len) : (10);
-                var string = "abcdefghijklmnopqrstuvwxyz"; //to upper 
-                var numeric = '0123456789';
-                var punctuation = '#?!@$%^&*-';//!@#$%^&*()_+~`|}{[]\:;?><,./-=
-                var password = "";
-                var character = "";
+                let length = (len) ? (len) : (10);
+                let string = "abcdefghijklmnopqrstuvwxyz"; //to upper 
+                let numeric = '0123456789';
+                let punctuation = '#?!@$%^&*-';//!@#$%^&*()_+~`|}{[]\:;?><,./-=
+                let password = "";
+                let character = "";
                 while (password.length < length) {
                     entity1 = Math.ceil(string.length * Math.random() * Math.random());
                     entity2 = Math.ceil(numeric.length * Math.random() * Math.random());

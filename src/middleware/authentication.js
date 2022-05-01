@@ -3,22 +3,19 @@ const authorModel = require('../Model/authorModel');
 
 const authentication = async function (req, res, next) {
     try {
-
+        //Validate Author
+        let authorId = req.headers["authorid"]
+        if(!authorId) {
+            return res.status(404).send({status:false, msg:"Author Id is not Present"})
+        }
+        let author = await authorModel.findById({_id:authorId})
+        if(!author) {
+            return res.status(404).send({status:false, msg:"Author does not exist"})
+        }
+        
         //Reading credential
-        let username = req.body.email
-        let password = req.body.password
-
-        //email is required
-        if(!username){
-            return res.status(400).send({ status: false, msg: "Enter email address" })
-        }
-
-        //email format validation
-        let validmail = !/^\w+([\.-]?\w+)@\w+([\. -]?\w+)(\.\w{2,3})+$/.test(username)
-
-        if (validmail) {
-            return res.status(400).send({ status: false, msg: "email is not valid" })
-        }
+        let username = author.email
+        let password = author.password
         
         //Reading token
         let token = req.headers["x-Api-Key"];
