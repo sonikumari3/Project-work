@@ -1,7 +1,9 @@
+const jwt = require('jsonwebtoken');
+
 //Import Models
 const blogModel = require("../Model/blogModel");
 const authorModel = require("../Model/authorModel");
-let jwt = require('jsonwebtoken')
+
 
 //create blog function
 const createBlog = async function (req, res) {
@@ -26,10 +28,10 @@ const createBlog = async function (req, res) {
     }
 
     //blog validation
-    bodylength = !/^.{30,}$/.test(body)
+    bodylength = !/^.{20,}$/.test(body)
 
     if (bodylength) {
-      return res.status(400).send({ status: false, msg: "Body should be of minimum 30 characters" })
+      return res.status(400).send({ status: false, msg: "Body should be of minimum 20 characters" })
     }
 
     //authorId validation
@@ -49,6 +51,19 @@ const createBlog = async function (req, res) {
 
     //create blog
     const blog = await blogModel.create(data);
+
+    //add published date if its published
+    if (blog.isPublished) {
+      blog.publishedAt = new Date(Date.now())
+      blog.save()
+    }
+
+    //add deleted date if its deleted
+    if (blog.isDeleted) {
+      blog.deletedAt = new Date(Date.now())
+      blog.save()
+    }
+
     res.status(201).send({ status: true, msg: blog });
 
   } catch (error) {
@@ -91,6 +106,12 @@ const filterblog = async function (req, res) {
 
     //filter by authorId
     if (id) {
+      //validate authorId
+      let validid = !/^(?=[a-f\d]{24}$)(\d+[a-f]|[a-f]+\d)/.test(id)
+      if (validid) {
+        return res.send({ status: false, message: "enter valid authorId" })
+      }
+      
       const validauthor = await authorModel.findById({ _id: id }).select({ _id: 1 });
       if (!validauthor)
         return res
@@ -205,14 +226,7 @@ const updatedModel = async function (req, res) {
 const publisheblog = async function (req, res) {
   try {
 
-    //Reading id from path params
     let id = req.params.blogId
-
-    //validate blogId
-    let validid = !/^(?=[a-f\d]{24}$)(\d+[a-f]|[a-f]+\d)/.test(id)
-    if (validid) {
-      return res.send({ status: false, message: "enter valid blogId" })
-    }
 
     //find blog with above id
     let blog = await blogModel.findOne({ $and: [{ _id: id }, { isDeleted: false }] })
@@ -235,7 +249,7 @@ const publisheblog = async function (req, res) {
     res.status(200).send({ status: true, msg: blog })
 
   } catch (error) {
-    res.status(500).send({ msg: err.message })
+    res.status(500).send({ msg: error.message })
   }
 
 }
@@ -247,9 +261,7 @@ const deleteblog = async function (req, res) {
   try {
     //reading id
     const id = req.params.blogId
-    if (!id) {
-      return res.send({ status: false, message: "Enter blogID" })
-    }
+
 
     //validate blogId
     let validid = !/^(?=[a-f\d]{24}$)(\d+[a-f]|[a-f]+\d)/.test(id)
@@ -284,27 +296,34 @@ const deletebyquery = async function (req, res) {
     //assigning values to variables
     const { category, authorId, tags, subcategory, isPublished } = queryparam//destructuring
 
-    //find blog
-    const blogs = await blogModel.find(queryparam);
-
+    //authorization
+    //Reading token
     let token = req.headers["x-Api-Key"];
-        // //check lowercase for token
+    //check lowercase
     if (!token) token = req.headers["x-api-key"]
-    //if token found then decode token using secret key
-    let decode = jwt.verify(token, "group40-phase2");
-    let loggedAuthorId = decode.authorId
-    const authorsBlogs = blogs.filter(b => b.authorId == loggedAuthorId)
 
+    let decode = jwt.verify(token, "group40-phase2");
+    //Reading authorId from decoded token
+    let loggedAuthorId = decode.authorId
+
+    //find authorized blog
+    const blogs = await blogModel.find({ $and: [{ authorId: loggedAuthorId }, queryparam] }).select({ title: 1, _id: 0 })
+
+    console.log(blogs)
     //blog not found
-    if (authorsBlogs.length === 0) {
+    if (blogs.length === 0) {
       return res.status(404).send({ status: false, message: "blog does not exist" })
     }
+
+
+
+
 
     //Declared empty array
     let arrayOfBlogs = []
     //for loop to store all the blog's title to delete
-    for (let i = 0; i < authorsBlogs.length; i++) {
-      let blogid = authorsBlogs[i].title
+    for (let i = 0; i < blogs.length; i++) {
+      let blogid = blogs[i].title
       arrayOfBlogs.push(blogid)
     }
 
@@ -326,7 +345,7 @@ const deletebyquery = async function (req, res) {
 
 const Endpoint = function (req, res) {
   try {
-    res.send({ status: false, message: "Enter Valid Endpoint" })
+    res.send({ status: false, message: "Enter BlogId In Path to proceed further" })
   } catch (error) {
     res.status(500).send({ status: false, msg: error.message })
   }

@@ -1,8 +1,43 @@
-let jwt = require('jsonwebtoken')
-const blogModel = require("../Model/blogModel");
+const jwt = require('jsonwebtoken');
+const blogModel = require('../Model/blogModel');
 
-//please check below condition
-//blog author id === token decrypt author id
+const authentication = async function (req, res, next) {
+    try {
+
+        //Reading token
+        let token = req.headers["x-Api-Key"];
+        //check lowercase
+        if (!token) token = req.headers["x-api-key"]
+
+        //if token not found
+        if (!token) {
+            return res.status(404).send({ status: false, msg: "Token must be present" })
+        }
+
+        //Token validation
+        validToken = !/^[A-Za-z0-9-_=]+\.[A-Za-z0-9-_=]+\.?[A-Za-z0-9-_.+/=]*$/.test(token)
+
+        if (validToken) {
+            return res.status(400).send({ status: false, msg: "Invalid token" })
+        }
+
+
+        //if token found
+        let decode = jwt.verify(token, "group40-phase2");
+        //if token is not valid
+        if (!decode) {
+            return res.status(403).send({ status: false, msg: "Invalid Token" })
+        }
+
+        
+        next()
+
+    } catch (error) {
+        res.status(400).send({ status: false, msg: error.message });
+
+    }
+}
+
 
 const authorize = async function (req, res, next) {
     try {
@@ -21,27 +56,56 @@ const authorize = async function (req, res, next) {
         if (!decode) {
             return res.status(403).send({ status: false, msg: "Invalid Token" })
         }
-        
+
         //Reading authorId from decoded token
         let loggedAuthorId = decode.authorId
-        
+
+        //<<<<<<<<<--------genius rafi----------->>>>>>>>>>
         // category, authorid, tag name, subcategory name, unpublished
         let isValid = false;
-        if (req.params.blogId) {
-            let auth = await blogModel.findById({ _id: req.params.blogId })
-            isValid = loggedAuthorId == auth.authorId;
+        //Reading id from path params
+        let id = req.params.blogId
+        if (id) {
+
+            //validate blogId
+            let validid = !/^(?=[a-f\d]{24}$)(\d+[a-f]|[a-f]+\d)/.test(id)
+            if (validid) {
+                return res.status(400).send({ status: false, message: "enter valid blogId" })
+            }
+
+            let auth = await blogModel.findById({ _id: id })
+           
+            if (!auth) {
+                return res.status(404).send({ status: false, message: "blog doesnt exist" })
+            }
+
+            isValid = loggedAuthorId == auth.authorId;//true or false
+         
         }
-        if(req.query) {
+
+        let queryparam = req.query
+        const { category, authorId, tags, subcategory, isPublished } = queryparam//destructuring
+      
+        if (Object.keys(queryparam) != 0) {
             const queryparam = req.query;
-            const { category, authorId, tags, subcategory, isPublished } = queryparam//destructuring
-            const blogs = await blogModel.find(queryparam); 
-            isValid = blogs.some(blog => blog.authorId == loggedAuthorId)
-            console.log("isValid", isValid)
+           
+
+            if (authorId) {
+                //validate authorId
+                let validid = !/^(?=[a-f\d]{24}$)(\d+[a-f]|[a-f]+\d)/.test(authorId)
+                if (validid) {
+                    return res.status(400).send({ status: false, message: "enter valid authorId" })
+                }
+            }
+
+            const blogs = await blogModel.find(queryparam);
+            if(!blogs){
+                return res.send({ status: false, msg: "Author not allowed" })
+            }
+            isValid = blogs.some(blog => blog.authorId == loggedAuthorId)//true or false
         }
 
-        //Reading authorId from headers
-        //let authorId = req.headers['authorid']
-
+        console.log(isValid)
         //if logged in author and author who is making changes are not same. then authorization failed
         if (!isValid) {
             return res.send({ status: false, msg: "Author not allowed" })
@@ -57,3 +121,6 @@ const authorize = async function (req, res, next) {
 
 //export function
 module.exports.authorize = authorize
+
+//export function
+module.exports.authentication = authentication

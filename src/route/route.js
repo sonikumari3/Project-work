@@ -1,35 +1,46 @@
-const express = require('express')
-const router = express.Router();
+const express = require('express')//import express
+const router = express.Router();//used express to create route handlers
+//import controllers and middlewares
 const authorcontroller = require('../controller/authorcontroller')
 const blogController = require('../controller/blogController')
 const auth = require('../middleware/auth')
-const authentication = require('../middleware/authentication')
 
-const app = express()
+const app = express()//used express to create global middleware
 
 // respond with "hello world" when a GET request is made to the homepage
 app.get('/', (req, res) => {
-  res.send('Welcome to Blogging Site Mini Project!!')
+  res.send('hello world')
 })
 
-router.post("/author", authorcontroller.createAuthor)
 
+//author API's
+//create author api
+router.post("/author", authorcontroller.createAuthor)
+//login author api
 router.post("/login", authorcontroller.loginauthor)
 
-router.post("/blog", blogController.createBlog)
+//blog API's
+//create blog api
+router.post("/blog", auth.authentication, blogController.createBlog)
 
-router.get("/getblog", authentication.authentication, blogController.getblog)
+//get blog api with middleware
+router.get("/getblog", auth.authentication, blogController.getblog)
 
-router.get("/filterblog", authentication.authentication, blogController.filterblog)
+//filter blog api with middleware
+router.get("/filterblog", auth.authentication, blogController.filterblog)
 
-router.put("/updateblog/:blogId", authentication.authentication, auth.authorize, blogController.updatedModel)
+//update blog api with middleware
+router.put("/updateblog/:blogId", auth.authentication, auth.authorize, blogController.updatedModel)
+router.put("/updateblog",  blogController.Endpoint)
 
-router.put("/publishblog/:blogId", authentication.authentication, auth.authorize, blogController.publisheblog)
+//publish blog api with middleware
+router.put("/publishblog/:blogId", auth.authentication, auth.authorize, blogController.publisheblog)
+router.put("/publishblog",  blogController.Endpoint)
 
-router.delete("/deleteblog/:blogId", authentication.authentication, auth.authorize, blogController.deleteblog)
+//delete blog api with middleware
+router.delete("/deleteblog/:blogId", auth.authentication, auth.authorize, blogController.deleteblog)
+router.delete("/deleteblog",  blogController.Endpoint)
+router.delete("/deletebyquery", auth.authentication, auth.authorize, blogController.deletebyquery)
 
-router.delete("/deletebyquery", authentication.authentication, auth.authorize, blogController.deletebyquery)
-
-router.delete("**", blogController.deleteblog)
-
+//export router
 module.exports = router;
